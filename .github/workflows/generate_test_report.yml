@@ -31,15 +31,12 @@ jobs:
 
       # Run tests with Allure
       - name: Run tests with pytest and Allure
-        run: poetry run pytest --alluredir=allure-results -v
+        run: poetry run pytest --alluredir=allure-results
         continue-on-error: true
           
       - name: Install Allure CLI
         run: |
-          npm install -g allure-commandline@2.21.0
-
-      - name: Clean previous Allure report
-        run: rm -rf allure-report
+          npm install -g allure-commandline
 
       # Generate Allure HTML report
       - name: Generate Allure Report
@@ -65,5 +62,5 @@ jobs:
       - name: Post Allure Summary to Pull Request
         uses: allure-framework/allure-action@v0
         with:
-          report-directory: "./allure-report/widgets"
+          report-directory: "./allure-results"
           github-token: ${{ secrets.GITHUB_TOKEN }}
