@@ -1,7 +1,7 @@
 name: Generate Allure Test Report
 
 on:
-  push:
+  pull_request:
     branches: [main]
 
 permissions:
@@ -31,36 +31,41 @@ jobs:
 
       # Run tests with Allure
       - name: Run tests with pytest and Allure
+        run: poetry run pytest --alluredir=allure-results
+        continue-on-error: true
+
+      - name: Add environment info
         run: |
-          poetry run pytest --alluredir=allure-results || true
-          
+          echo "Python=3.12" > allure-results/environment.properties
+
       - name: Install Allure CLI
         run: |
-          npm install -g allure-commandline --unsafe-perm=true
+          npm install -g allure-commandline@latest
 
       # Generate Allure HTML report
       - name: Generate Allure Report
         run: |
           allure generate allure-results --clean -o allure-report
+          ls allure-results
 
-      # Upload allure-results
-      - name: Upload Allure results
-        uses: actions/upload-artifact@v4
+      # Deploy HTML report to GitHub Pages
+      - name: Deploy Allure Report to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: allure-results
-          path: allure-results
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
+          publish_branch: gh-pages
 
-      # Download previous Allure results
-      - name: Download previous Allure results
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-results
-          path: allure-results-previous
-        continue-on-error: true
+      # Print Allure HTML Report URL
+      - name: Print Allure Report URL
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Allure HTML report is available at: https://${{ github.repository_owner }}.github.io/${{ github.repository }}/"
 
-      # 8️⃣ Post summary to PR
+      # Post summary to PR
       - name: Post Allure Summary to Pull Request
         uses: allure-framework/allure-action@v0
         with:
-          report-directory: "allure-results"
+          report-directory: ./allure-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
