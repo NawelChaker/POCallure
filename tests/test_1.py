@@ -8,6 +8,9 @@ def test_pass_1():
 
 def test_pass_2():
     assert "allure" in "generate allure report"
+    
+def test_pass_3():
+    assert 2 + 1 == 3
 
 # -----------------------------
 # Failing test
