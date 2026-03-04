@@ -33,7 +33,11 @@ jobs:
       - name: Run tests with pytest and Allure
         run: poetry run pytest --alluredir=allure-results
         continue-on-error: true
-          
+
+      - name: Add environment info
+        run: |
+          echo "Python=3.12" > allure-results/environment.properties
+
       - name: Install Allure CLI
         run: |
           npm install -g allure-commandline@latest
@@ -61,7 +65,7 @@ jobs:
 
       # Post summary to PR
       - name: Post Allure Summary to Pull Request
-        uses: allure-framework/allure-report@v1
+        uses: allure-framework/allure-action@v0
         with:
           report-directory: ./allure-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
