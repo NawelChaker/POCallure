@@ -64,7 +64,7 @@ jobs:
           echo "Allure HTML report is available at: https://${{ github.repository_owner }}.github.io/${{ github.repository }}/"
 
       - name: Copy summary.json to root for PR summary
-        run: cp allure-report/data/summary.json allure-report/summary.json
+        run: cp allure-report/widgets/summary.json allure-report/summary.json
 
       # Post summary to PR
       - name: Post Allure Summary to Pull Request
