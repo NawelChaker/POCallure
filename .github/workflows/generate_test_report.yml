@@ -38,7 +38,7 @@ jobs:
         run: pytest --alluredir=${{ env.ALLURE_RESULTS }} || true
 
       - name: Upload Allure results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: allure-results
           path: ${{ env.ALLURE_RESULTS }}
@@ -55,7 +55,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download Allure results from previous job
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: allure-results
           path: ${{ env.ALLURE_RESULTS }}
