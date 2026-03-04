@@ -31,9 +31,8 @@ jobs:
 
       # Run tests with Allure
       - name: Run tests with pytest and Allure
-        run: |
-          poetry run pytest --alluredir=allure-results
-          continue-on-error: true
+        run: poetry run pytest --alluredir=allure-results -v
+        continue-on-error: true
           
       - name: Install Allure CLI
         run: |
