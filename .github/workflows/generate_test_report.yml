@@ -1,0 +1,62 @@
+name: Generate Allure Test Report
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  pull-requests: write
+  checks: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      # Install dependencies via Poetry
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          poetry install
+
+      # Run tests with Allure
+      - name: Run tests with pytest and Allure
+        run: |
+          poetry run pytest --alluredir=allure-results
+
+      # Generate Allure HTML report
+      - name: Generate Allure Report
+        run: |
+          allure generate allure-results --output allure-report
+
+      # Upload allure-results
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results
+
+      # Download previous Allure results
+      - name: Download previous Allure results
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results-previous
+        continue-on-error: true
+
+      # 8️⃣ Post summary to PR
+      - name: Post Allure Summary to Pull Request
+        uses: allure-framework/allure-action@v0
+        with:
+          report-directory: "./allure-report"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
