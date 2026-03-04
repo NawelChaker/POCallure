@@ -65,5 +65,5 @@ jobs:
       - name: Post Allure Summary to Pull Request
         uses: allure-framework/allure-action@v0
         with:
-          report-directory: "./allure-report"
+          report-directory: "./allure-report/widgets"
           github-token: ${{ secrets.GITHUB_TOKEN }}
