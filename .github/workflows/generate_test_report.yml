@@ -73,7 +73,7 @@ jobs:
         run: npx allure generate ${{ env.ALLURE_RESULTS }} --output ${{ env.ALLURE_REPORT }}
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v5
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ env.ALLURE_REPORT }}
