@@ -1,7 +1,7 @@
 name: Generate Allure Test Report
 
 on:
-  push:
+  pull_request:
     branches: [main]
 
 permissions:
