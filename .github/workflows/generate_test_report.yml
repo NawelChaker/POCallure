@@ -45,6 +45,7 @@ jobs:
 
       # Deploy HTML report to GitHub Pages
       - name: Deploy Allure Report to GitHub Pages
+        if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -53,6 +54,7 @@ jobs:
 
       # Print Allure HTML Report URL
       - name: Print Allure Report URL
+        if: github.ref == 'refs/heads/main'
         run: |
           echo "Allure HTML report is available at: https://${{ github.repository_owner }}.github.io/${{ github.repository }}/"
 
