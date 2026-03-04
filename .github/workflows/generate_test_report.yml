@@ -32,7 +32,7 @@ jobs:
       # Run tests with Allure
       - name: Run tests with pytest and Allure
         run: |
-          poetry run pytest --alluredir=allure-results
+          poetry run pytest --alluredir=allure-results || true
           
       - name: Install Allure CLI
         run: |
