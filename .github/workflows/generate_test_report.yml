@@ -38,15 +38,13 @@ jobs:
         run: |
           npm install -g allure-commandline@2.21.0
 
+      - name: Clean previous Allure report
+        run: rm -rf allure-report
+
       # Generate Allure HTML report
       - name: Generate Allure Report
         run: |
           allure generate allure-results --clean -o allure-report
-
-      - name: List Allure report contents
-        run: |
-          echo "Allure report folder contents:"
-          ls -R allure-report
 
       # Deploy HTML report to GitHub Pages
       - name: Deploy Allure Report to GitHub Pages
@@ -62,9 +60,6 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           echo "Allure HTML report is available at: https://${{ github.repository_owner }}.github.io/${{ github.repository }}/"
-
-      - name: Copy summary.json to root for PR summary
-        run: cp allure-report/widgets/summary.json allure-report/summary.json
 
       # Post summary to PR
       - name: Post Allure Summary to Pull Request
