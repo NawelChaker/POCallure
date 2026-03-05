@@ -78,7 +78,7 @@ jobs:
         continue-on-error: true
 
       - name: Generate Allure Report
-        uses: allure-framework/allure-report@v1
+        uses: GuitaristForEver/allure-v3-report-action@v1
         with:
           allure_results: ${{ env.ALLURE_RESULTS }}
           allure_history: ${{ env.ALLURE_HISTORY }}
