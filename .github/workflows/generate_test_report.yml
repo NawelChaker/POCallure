@@ -59,20 +59,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Télécharger les résultats du build de tests
       - name: Download Allure results
         uses: actions/download-artifact@v4
         with:
           name: allure-results
           path: ${{ env.ALLURE_RESULTS }}
 
+      # Télécharger l’historique du build précédent s’il existe
+      - name: Download previous Allure history
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-history
+          path: ${{ env.ALLURE_REPORT }}/.allure
+        continue-on-error: true
+
       - name: Install Allure CLI
         run: npm install -g allure
 
-      - name: Prepare Allure history
+      - name: Prepare Allure history folder
         run: |
           mkdir -p ${{ env.ALLURE_REPORT }}/.allure
           touch ${{ env.ALLURE_REPORT }}/.allure/history.jsonl || echo "[]" > ${{ env.ALLURE_REPORT }}/.allure/history.jsonl
-      
+
       - name: Create Allure configuration
         run: |
           cat > allureConfig.json <<EOL
@@ -81,12 +90,12 @@ jobs:
             "appendHistory": true
           }
           EOL
-      
+
       - name: Generate Allure report with history
         run: |
           echo "Generating Allure report with history..."
           mkdir -p ${{ env.ALLURE_REPORT }}
-          npx allure generate ${{ env.ALLURE_RESULTS }} --output ${{ env.ALLURE_REPORT }} --config allureConfig.json
+          npx allure generate ${{ env.ALLURE_RESULTS }} --clean --output ${{ env.ALLURE_REPORT }} --config allureConfig.json
 
       - name: Comment PR with Allure summary
         uses: allure-framework/allure-action@v0
@@ -94,16 +103,28 @@ jobs:
           report-directory: ${{ env.ALLURE_REPORT }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Move Allure report to root for GH Pages
+      # Déplacer seulement si nécessaire (ex: sous-dossier "awesome")
+      - name: Move Allure report to root if needed
         run: |
-          mv ${{ env.ALLURE_REPORT }}/awesome/* ${{ env.ALLURE_REPORT }}/
+          if [ -d "${{ env.ALLURE_REPORT }}/awesome" ]; then
+            mv ${{ env.ALLURE_REPORT }}/awesome/* ${{ env.ALLURE_REPORT }}/
+          fi
 
+      # Déployer le rapport sur GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ env.ALLURE_REPORT }}
           force: true
+
+      # Upload du fichier history pour le prochain build
+      - name: Upload Allure history
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-history
+          path: ${{ env.ALLURE_REPORT }}/.allure/history.jsonl
+          retention-days: 30
 
       - name: Print Allure report URL
         run: |
