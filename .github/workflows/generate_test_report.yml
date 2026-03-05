@@ -14,6 +14,7 @@ permissions:
 env:
   ALLURE_RESULTS: allure-results
   ALLURE_REPORT: allure-report
+  ALLURE_HISTORY: allure-history
   PIP_CACHE_DIR: ${{ github.workspace }}/.cache/pip
 
 jobs:
@@ -33,11 +34,11 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-            
+
       - name: Prepare Allure results folder
         run: |
-          rm -rf allure-results
-          mkdir -p allure-results
+          rm -rf ${{ env.ALLURE_RESULTS }}
+          mkdir -p ${{ env.ALLURE_RESULTS }}
 
       - name: Install Python dependencies
         run: |
@@ -45,13 +46,13 @@ jobs:
           pip install pytest allure-pytest
 
       - name: Run pytest
-        run: pytest --alluredir=allure-results || true
+        run: pytest --alluredir=${{ env.ALLURE_RESULTS }} || true
 
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
           name: allure-results
-          path: allure-results
+          path: ${{ env.ALLURE_RESULTS }}
           retention-days: 7
 
   deploy:
@@ -64,6 +65,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Télécharger les résultats pytest
+      - name: Download Allure results
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results
+          path: ${{ env.ALLURE_RESULTS }}
+
       # Télécharger la branche gh-pages pour récupérer l’historique
       - name: Checkout gh-pages (history)
         uses: actions/checkout@v4
@@ -72,13 +80,13 @@ jobs:
           path: gh-pages
         continue-on-error: true
 
-      # Générer le rapport Allure 3 avec historique
+      # Générer le rapport Allure v3 avec historique
       - name: Generate Allure Report
         uses: GuitaristForEver/allure-v3-report-action@v1
         with:
-          allure_results: allure-results
-          allure_history: allure-history
-          allure_report: allure-report
+          allure_results: ${{ env.ALLURE_RESULTS }}
+          allure_history: ${{ env.ALLURE_HISTORY }}
+          allure_report: ${{ env.ALLURE_REPORT }}
           gh_pages: gh-pages
           keep_reports: 20
           report_name: Allure Report
@@ -89,15 +97,16 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: allure-history
+          publish_dir: ${{ env.ALLURE_HISTORY }}
 
-      # Commenter le PR avec résumé Allure (facultatif)
+      # Commenter le PR avec résumé Allure (optionnel)
       - name: Comment PR with Allure summary
         uses: allure-framework/allure-action@v0
         with:
-          report-directory: allure-report
+          report-directory: ${{ env.ALLURE_REPORT }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      # Afficher l’URL du rapport
       - name: Print Allure report URL
         run: |
           echo "----------------------------------------"
