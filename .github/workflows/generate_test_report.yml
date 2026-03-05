@@ -6,6 +6,10 @@ on:
       - main
   pull_request:
 
+permissions:
+  pull-requests: write
+  checks: write
+
 env:
   ALLURE_RESULTS: allure-results
   ALLURE_REPORT: allure-report
