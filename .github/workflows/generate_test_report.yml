@@ -94,6 +94,10 @@ jobs:
           report-directory: ${{ env.ALLURE_REPORT }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Move Allure report to root for GH Pages
+        run: |
+          mv ${{ env.ALLURE_REPORT }}/awesome/* ${{ env.ALLURE_REPORT }}/
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
