@@ -1,4 +1,4 @@
-name: Pipeline Allure Pages
+name: CI Pipeline with Allure Pages
 
 on:
   push:
@@ -6,15 +6,9 @@ on:
       - main
   pull_request:
 
-permissions:
-  contents: write
-  pull-requests: write
-  checks: write
-
 env:
   ALLURE_RESULTS: allure-results
   ALLURE_REPORT: allure-report
-  ALLURE_HISTORY: allure-history
   PIP_CACHE_DIR: ${{ github.workspace }}/.cache/pip
 
 jobs:
@@ -34,11 +28,6 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-
-      - name: Prepare Allure results folder
-        run: |
-          rm -rf ${{ env.ALLURE_RESULTS }}
-          mkdir -p ${{ env.ALLURE_RESULTS }}
 
       - name: Install Python dependencies
         run: |
@@ -63,50 +52,55 @@ jobs:
       image: node:lts
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      # Télécharger les résultats pytest
       - name: Download Allure results
         uses: actions/download-artifact@v4
         with:
           name: allure-results
           path: ${{ env.ALLURE_RESULTS }}
 
-      # Télécharger la branche gh-pages pour récupérer l’historique
-      - name: Checkout gh-pages (history)
-        uses: actions/checkout@v4
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v3
         with:
           ref: gh-pages
           path: gh-pages
         continue-on-error: true
 
-      # Générer le rapport Allure v3 avec historique
-      - name: Generate Allure Report
-        uses: GuitaristForEver/allure-v3-report-action@v1
-        with:
-          allure_results: ${{ env.ALLURE_RESULTS }}
-          allure_history: ${{ env.ALLURE_HISTORY }}
-          allure_report: ${{ env.ALLURE_REPORT }}
-          gh_pages: gh-pages
-          keep_reports: 20
-          report_name: Allure Report
+      - name: Restore previous Allure history
+        run: |
+          if [ -d gh-pages/history ]; then
+            mkdir -p ${{ env.ALLURE_RESULTS }}/history
+            cp -r gh-pages/history/* ${{ env.ALLURE_RESULTS }}/history/
+          fi
 
-      # Déployer sur GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Set up Java (required by Allure)
+        uses: actions/setup-java@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: ${{ env.ALLURE_HISTORY }}
+          distribution: temurin
+          java-version: 17
 
-      # Commenter le PR avec résumé Allure (optionnel)
+      - name: Install Allure CLI
+        run: npm install -g allure-commandline
+
+      - name: Generate Allure report with history
+        run: |
+          echo "Generating Allure report..."
+          mkdir -p ${{ env.ALLURE_REPORT }}
+          npx allure generate ${{ env.ALLURE_RESULTS }} --clean --output ${{ env.ALLURE_REPORT }}
+
       - name: Comment PR with Allure summary
         uses: allure-framework/allure-action@v0
         with:
           report-directory: ${{ env.ALLURE_REPORT }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Afficher l’URL du rapport
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ env.ALLURE_REPORT }}
+
       - name: Print Allure report URL
         run: |
           echo "----------------------------------------"
