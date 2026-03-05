@@ -65,13 +65,13 @@ jobs:
           path: ${{ env.ALLURE_RESULTS }}
 
       - name: Install Allure CLI
-        run: npm install -g allure
+        run: npm install -g allure-commandline
 
-      - name: Generate Allure report
+      - name: Generate Allure report with history
         run: |
           echo "Generating Allure report..."
-          mkdir -p ${{ env.ALLURE_REPORT }}
-          npx allure generate ${{ env.ALLURE_RESULTS }} --clean --output ${{ env.ALLURE_REPORT }} --history ${{ env.ALLURE_REPORT }}/history
+          mkdir -p ${{ env.ALLURE_REPORT }}/history
+          allure generate ${{ env.ALLURE_RESULTS }} --clean --output ${{ env.ALLURE_REPORT }} --history ${{ env.ALLURE_REPORT }}/history
 
       - name: Comment PR with Allure summary
         uses: allure-framework/allure-action@v0
