@@ -95,7 +95,7 @@ jobs:
         run: |
           echo "Generating Allure report with history..."
           mkdir -p ${{ env.ALLURE_REPORT }}
-          npx allure generate ${{ env.ALLURE_RESULTS }} --clean --output ${{ env.ALLURE_REPORT }} --config allureConfig.json
+          npx allure generate ${{ env.ALLURE_RESULTS }} --output ${{ env.ALLURE_REPORT }} --config allureConfig.json
 
       - name: Comment PR with Allure summary
         uses: allure-framework/allure-action@v0
