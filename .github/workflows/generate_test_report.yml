@@ -80,6 +80,13 @@ jobs:
           path: gh-pages
         continue-on-error: true
 
+      - name: Copy Allure history
+        run: |
+          mkdir -p ${{ env.ALLURE_HISTORY }}
+          if [ -d gh-pages/history ]; then
+            cp -r gh-pages/history/* ${{ env.ALLURE_HISTORY }}/
+          fi
+
       # Générer le rapport Allure v3 avec historique
       - name: Generate Allure Report
         uses: GuitaristForEver/allure-v3-report-action@v1
@@ -97,7 +104,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: ${{ env.ALLURE_HISTORY }}
+          publish_dir: ${{ env.ALLURE_REPORT }}
 
       # Commenter le PR avec résumé Allure (optionnel)
       - name: Comment PR with Allure summary
@@ -105,11 +112,3 @@ jobs:
         with:
           report-directory: ${{ env.ALLURE_REPORT }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      # Afficher l’URL du rapport
-      - name: Print Allure report URL
-        run: |
-          echo "----------------------------------------"
-          echo "Allure report URL:"
-          echo "https://${{ github.repository_owner }}.github.io/${{ github.repository }}/"
-          echo "----------------------------------------"
