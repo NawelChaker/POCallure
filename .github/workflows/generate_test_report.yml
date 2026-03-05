@@ -72,8 +72,8 @@ jobs:
         run: |
           echo "Generating Allure report..."
           mkdir -p ${{ env.ALLURE_REPORT }}
-          if [ -d "${{ env.ALLURE_REPORT }}/history" ]; then
-            cp -r "${{ env.ALLURE_REPORT }}/history" "${{ env.ALLURE_RESULTS }}/" || true
+          if [ -f "${{ env.ALLURE_REPORT }}/allure-history/history.jsonl" ]; then
+            cp "${{ env.ALLURE_REPORT }}/allure-history/history.jsonl" "${{ env.ALLURE_RESULTS }}/history.jsonl"
           fi
           npx allure generate ${{ env.ALLURE_RESULTS }} --output ${{ env.ALLURE_REPORT }}
 
