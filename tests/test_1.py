@@ -28,5 +28,9 @@ def test_fail_2():
 # Skipped test (optional)
 # -----------------------------
 @pytest.mark.skip(reason="skip example")
-def test_skip():
+def test_skip_1():
+    assert True
+
+@pytest.mark.skip(reason="skip example")
+def test_skip_2():
     assert True
