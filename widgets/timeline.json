@@ -1,1 +1,1 @@
-[{"id":"fb94bbc85b64bf70359e1144ce023734","historyId":"309a17e7a02a264cc02c59fc1c242f9d.d41d8cd98f00b204e9800998ecf8427e","name":"test_fail_2","status":"failed","hidden":false,"host":"cf15604c6548","thread":"150-MainThread","environment":"default","start":1772702933570,"duration":1}]
+[{"id":"8b299c2c245ae348f8f89590460949d9","historyId":"4739d773d6aae901ac7080683be9f98e.d41d8cd98f00b204e9800998ecf8427e","name":"test_pass_1","status":"passed","hidden":false,"host":"b8543ab65bc0","thread":"150-MainThread","environment":"default","start":1772703058612,"duration":1}]
