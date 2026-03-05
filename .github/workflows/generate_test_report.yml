@@ -64,6 +64,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Télécharger la branche gh-pages pour récupérer l’historique
       - name: Checkout gh-pages (history)
         uses: actions/checkout@v4
         with:
@@ -71,13 +72,18 @@ jobs:
           path: gh-pages
         continue-on-error: true
 
+      # Générer le rapport Allure 3 avec historique
       - name: Generate Allure Report
         uses: GuitaristForEver/allure-v3-report-action@v1
         with:
           allure_results: allure-results
           allure_history: allure-history
           allure_report: allure-report
+          gh_pages: gh-pages
+          keep_reports: 20
+          report_name: Allure Report
 
+      # Déployer sur GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -85,10 +91,11 @@ jobs:
           publish_branch: gh-pages
           publish_dir: allure-history
 
+      # Commenter le PR avec résumé Allure (facultatif)
       - name: Comment PR with Allure summary
         uses: allure-framework/allure-action@v0
         with:
-          report-directory: ${{ env.ALLURE_REPORT }}
+          report-directory: allure-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Print Allure report URL
