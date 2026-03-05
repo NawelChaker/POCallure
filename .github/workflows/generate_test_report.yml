@@ -68,14 +68,25 @@ jobs:
       - name: Install Allure CLI
         run: npm install -g allure
 
+      - name: Prepare Allure history
+        run: |
+          mkdir -p ${{ env.ALLURE_REPORT }}/.allure
+          touch ${{ env.ALLURE_REPORT }}/.allure/history.jsonl || echo "[]" > ${{ env.ALLURE_REPORT }}/.allure/history.jsonl
+      
+      - name: Create Allure configuration
+        run: |
+          cat > allureConfig.json <<EOL
+          {
+            "historyPath": "${{ env.ALLURE_REPORT }}/.allure/history.jsonl",
+            "appendHistory": true
+          }
+          EOL
+      
       - name: Generate Allure report with history
         run: |
-          echo "Generating Allure report..."
+          echo "Generating Allure report with history..."
           mkdir -p ${{ env.ALLURE_REPORT }}
-          if [ -f "${{ env.ALLURE_REPORT }}/allure-history/history.jsonl" ]; then
-            cp "${{ env.ALLURE_REPORT }}/allure-history/history.jsonl" "${{ env.ALLURE_RESULTS }}/history.jsonl"
-          fi
-          npx allure generate ${{ env.ALLURE_RESULTS }} --output ${{ env.ALLURE_REPORT }}
+          npx allure generate ${{ env.ALLURE_RESULTS }} --output ${{ env.ALLURE_REPORT }} --config allureConfig.json
 
       - name: Comment PR with Allure summary
         uses: allure-framework/allure-action@v0
