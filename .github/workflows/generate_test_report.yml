@@ -1,4 +1,4 @@
-name: CI Pipeline with Allure Pages
+name: Pipeline Allure Pages
 
 on:
   push:
