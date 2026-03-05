@@ -57,74 +57,34 @@ jobs:
       image: node:lts
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Télécharger les résultats du build de tests
-      - name: Download Allure results
-        uses: actions/download-artifact@v4
+      - name: Checkout gh-pages (history)
+        uses: actions/checkout@v4
         with:
-          name: allure-results
-          path: ${{ env.ALLURE_RESULTS }}
-
-      # Télécharger l’historique du build précédent s’il existe
-      - name: Download previous Allure history
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-history
-          path: ${{ env.ALLURE_REPORT }}/.allure
+          ref: gh-pages
+          path: gh-pages
         continue-on-error: true
 
-      - name: Install Allure CLI
-        run: npm install -g allure
+      - name: Generate Allure Report
+        uses: yuvalgabay/allure-v3-report-action@v1
+        with:
+          allure_results: allure-results
+          allure_history: allure-history
+          allure_report: allure-report
 
-      - name: Prepare Allure history folder
-        run: |
-          mkdir -p ${{ env.ALLURE_REPORT }}/.allure
-          touch ${{ env.ALLURE_REPORT }}/.allure/history.jsonl || echo "[]" > ${{ env.ALLURE_REPORT }}/.allure/history.jsonl
-
-      - name: Create Allure configuration
-        run: |
-          cat > allureConfig.json <<EOL
-          {
-            "historyPath": "${{ env.ALLURE_REPORT }}/.allure/history.jsonl",
-            "appendHistory": true
-          }
-          EOL
-
-      - name: Generate Allure report with history
-        run: |
-          echo "Generating Allure report with history..."
-          mkdir -p ${{ env.ALLURE_REPORT }}
-          npx allure generate ${{ env.ALLURE_RESULTS }} --output ${{ env.ALLURE_REPORT }} --config allureConfig.json
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
 
       - name: Comment PR with Allure summary
         uses: allure-framework/allure-action@v0
         with:
           report-directory: ${{ env.ALLURE_REPORT }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      # Déplacer seulement si nécessaire (ex: sous-dossier "awesome")
-      - name: Move Allure report to root if needed
-        run: |
-          if [ -d "${{ env.ALLURE_REPORT }}/awesome" ]; then
-            mv ${{ env.ALLURE_REPORT }}/awesome/* ${{ env.ALLURE_REPORT }}/
-          fi
-
-      # Déployer le rapport sur GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ env.ALLURE_REPORT }}
-          force: true
-
-      # Upload du fichier history pour le prochain build
-      - name: Upload Allure history
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-history
-          path: ${{ env.ALLURE_REPORT }}/.allure/history.jsonl
-          retention-days: 30
 
       - name: Print Allure report URL
         run: |
