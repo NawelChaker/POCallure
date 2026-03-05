@@ -9,6 +9,9 @@ def test_pass_11():
 def test_pass_22():
     assert "allure" in "generate allure report"
 
+def test_pass_55():
+    assert "allure" in "generate allure report"
+
 # -----------------------------
 # Failing test
 # -----------------------------
