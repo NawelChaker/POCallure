@@ -60,23 +60,14 @@ jobs:
           name: allure-results
           path: ${{ env.ALLURE_RESULTS }}
 
-      - name: Set up Java (required by Allure)
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 17
-
       - name: Install Allure CLI
-        run: npm install -g allure-commandline
+        run: npm install -g allure
 
       - name: Generate Allure report
         run: |
           echo "Generating Allure report..."
           mkdir -p ${{ env.ALLURE_REPORT }}
-          npx allure generate ${{ env.ALLURE_RESULTS }} --clean --output ${{ env.ALLURE_REPORT }}
-
-      - name: Verify report files
-        run: ls -la ${{ env.ALLURE_REPORT }}
+          npx allure generate ${{ env.ALLURE_RESULTS }} --output ${{ env.ALLURE_REPORT }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
