@@ -3,34 +3,24 @@ import pytest
 # -----------------------------
 # Passing test
 # -----------------------------
-def test_pass_1():
+def test_pass_11():
     assert 2 + 2 == 4
 
-def test_pass_2():
+def test_pass_22():
     assert "allure" in "generate allure report"
-    
-def test_pass_3():
-    assert 2 + 1 == 3
-
-def test_pass_4():
-    assert 1 + 1 == 2
 
 # -----------------------------
 # Failing test
 # -----------------------------
-def test_fail_1():
+def test_fail_11():
     assert 1 == 0
 
-def test_fail_2():
+def test_fail_22():
     assert len([1,2,3]) == 5
 
 # -----------------------------
 # Skipped test (optional)
 # -----------------------------
 @pytest.mark.skip(reason="skip example")
-def test_skip_1():
-    assert True
-
-@pytest.mark.skip(reason="skip example")
-def test_skip_2():
+def test_skip_0():
     assert True
