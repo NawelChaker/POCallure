@@ -33,6 +33,11 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+            
+      - name: Prepare Allure results folder
+        run: |
+          rm -rf allure-results
+          mkdir -p allure-results
 
       - name: Install Python dependencies
         run: |
@@ -40,13 +45,13 @@ jobs:
           pip install pytest allure-pytest
 
       - name: Run pytest
-        run: pytest --alluredir=${{ env.ALLURE_RESULTS }} || true
+        run: pytest --alluredir=allure-results || true
 
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
           name: allure-results
-          path: ${{ env.ALLURE_RESULTS }}
+          path: allure-results
           retention-days: 7
 
   deploy:
