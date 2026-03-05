@@ -2,8 +2,7 @@ name: Run Tests and Publish Allure Report
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   test:
@@ -11,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
@@ -19,15 +18,14 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install allure-pytest allure-commandline
 
-      - name: Run pytest
+      - name: Run tests
         run: pytest
 
-      - name: Copy previous Allure history
+      - name: Prepare Allure history
         run: |
           mkdir -p allure-results/history
-          cp -r .allure-history/* allure-results/history/ || echo "No previous history"
+          cp -r .allure-history/* allure-results/history/ || echo "No history yet"
 
       - name: Generate Allure report
         run: |
@@ -43,7 +41,7 @@ jobs:
           rm -rf docs
           cp -r allure-report docs
 
-      - name: Commit and push GitHub Pages update
+      - name: Commit and push docs
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update Allure report"
