@@ -80,6 +80,15 @@ jobs:
           path: gh-pages
         continue-on-error: true
 
+      # Copier l'historique précédent pour générer les trends
+      - name: Copy Allure history
+        run: |
+          if [ -d gh-pages/history ]; then
+            echo "Copying previous history..."
+            mkdir -p ${{ env.ALLURE_RESULTS }}/history
+            cp -r gh-pages/history/* ${{ env.ALLURE_RESULTS }}/history || true
+          fi
+
       # Générer le rapport Allure v3 avec historique
       - name: Generate Allure Report
         uses: GuitaristForEver/allure-v3-report-action@v1
